@@ -1,0 +1,21 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: health-envoyfilter
+  namespace: istio-system
+spec:
+  # workloadSelector:
+  #   labels:
+  #     app: helloserver
+  filters:
+    - listenerMatch:
+        listenerType: GATEWAY
+      filterName: envoy.lua
+      filterType: HTTP
+      filterConfig:
+        inlineCode: |
+          function envoy_on_request(request_handle)
+            if request_handle:headers():get(":path") == "/" then
+              request_handle:respond({[":status"] = "200"},"ok")
+            end
+          end
